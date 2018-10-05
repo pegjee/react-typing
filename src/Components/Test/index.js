@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import './TypingTest.css';
+import './Test.css';
 
 let wordsPerMinTest = require('wpmtest');
 // eslint-disable-next-line prefer-destructuring
 wordsPerMinTest = wordsPerMinTest.wordsPerMinTest;
 
-class TypingTest extends Component {
+class Test extends Component {
   constructor(props) {
     super(props);
     const context = this;
@@ -63,25 +63,34 @@ class TypingTest extends Component {
           )
         }
         <p>{this.wordsTest.curDisplayText}</p>
-        <p>{`words typed: ${this.wordsTest.wordCount}`}</p>
-        <p>{`word average WPM: ${this.wordsTest.lastTenAvWPM}`}</p>
-        <p>{`total average WPM: ${this.wordsTest.averageWPM}`}</p>
+        {this.getStats()}
       </div>
     );
     this.setState({ displayString: displayText });
   }
 
-  checkKey(value) {
-    if (this.wordsTest.started) {
-      const charCheck = this.wordsTest.checkKeyChar(value);
-      if (charCheck.isCharCorrect === true) {
-        this.setDisplayText(false);
-      } else {
-        this.setDisplayText(false, charCheck.errorText);
-      }
-    }
+  getStats() {
+    return (
+      <div>
+        <ul>
+          <li>
+            Words typed:
+            <strong>{this.wordsTest.wordCount}</strong>
+          </li>
+          <li>
+            Average words per minute
+            <small>(last 10 seconds): </small>
+            <strong>{this.wordsTest.lastTenAvWPM}</strong>
+          </li>
+          <li>
+            Average words per minute
+            <small>(total): </small>
+            <strong>{this.wordsTest.averageWPM}</strong>
+          </li>
+        </ul>
+      </div>
+    );
   }
-
 
   countdown() {
     const context = this;
@@ -101,9 +110,33 @@ class TypingTest extends Component {
     }, 4000);
   }
 
+  checkKey(value) {
+    if (this.wordsTest.started) {
+      const charCheck = this.wordsTest.checkKeyChar(value);
+      if (charCheck.isCharCorrect === true) {
+        this.setDisplayText(false);
+      } else {
+        this.setDisplayText(false, charCheck.errorText);
+      }
+    }
+  }
+
   finishedFunction() {
     this.wordsTest.started = false;
-    this.setState({ displayString: 'You have finished' });
+    this.setState({
+      displayString: (
+        <div>
+          <h3>Finished</h3>
+          {this.getStats()}
+          <button type="button" onClick={this.restart.bind(this)}>Retry</button>
+        </div>
+      ),
+    });
+  }
+
+  restart() {
+    this.wordsTest.restartTest();
+    this.countdown();
   }
 
   render() {
@@ -116,4 +149,4 @@ class TypingTest extends Component {
   }
 }
 
-export default TypingTest;
+export default Test;
